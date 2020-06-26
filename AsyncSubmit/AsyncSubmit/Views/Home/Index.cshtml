@@ -1,7 +1,23 @@
-﻿@{
+﻿@model FormViewModel
+
+@{
     ViewData["Title"] = "Email Submit";
 }
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
 </div>
+
+<form id="indexForm" asp-action="Post">
+    <div class="form-group">
+        <label for="exampleInputEmail1">Email address</label>
+        <input asp-for="Email" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+        <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
