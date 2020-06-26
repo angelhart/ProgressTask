@@ -1,4 +1,30 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿$(document).ready(function () {
+    $("#indexForm").submit(function (e) {
+        if ($("#indexForm").valid()) {
+            
+            e.preventDefault();
 
-// Write your JavaScript code.
+            var actionUrl = $(this).attr("action");
+
+            var requestContent = $(this).serialize();
+
+            var submitedEmail = $("input[type=email]").val();
+
+            //$.ajax({
+            //    url: actionUrl,
+            //    data: requestContent,
+            //    success: function (data, textStatus, jqXHR) {
+            //        toastr.success("submited successfully!", submitedEmail),
+            //    },
+            //    error: function (jqXHR, textStatus, errorThrown) {
+            //        toastr.error(textStatus, jqXHR.status);
+            //    }
+            //});
+
+            $.post(actionUrl, requestContent, function (xhr, res) {
+                console.log(res.status);
+                toastr.success("submited successfully!", submitedEmail);
+            });
+        }
+    });
+});
