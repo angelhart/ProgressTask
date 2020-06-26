@@ -1,21 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using AsyncSubmit.Models;
+using System.Net.Http;
+using AsyncSubmit.Providers;
 
 namespace AsyncSubmit.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private const string POSTURI = "https://us-central1-randomfails.cloudfunctions.net/submitEmail";
 
-        public HomeController(ILogger<HomeController> logger)
+        private readonly ILogger<HomeController> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public HomeController(ILogger<HomeController> logger,
+                              IHttpClientFactory httpClientFactory)
         {
-            _logger = logger;
+            this._logger = logger;
+            this._httpClientFactory = httpClientFactory;
         }
 
         public IActionResult Index()
@@ -23,10 +27,31 @@ namespace AsyncSubmit.Controllers
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Post(FormViewModel model)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            if (ModelState.IsValid)
+            {
+                var client = _httpClientFactory.CreateClient();
+
+                var request = JsonProvider<FormViewModel>.Serialize(model);
+                var response = await client.PostAsync(POSTURI, request);
+
+                while (!response.IsSuccessStatusCode)
+                {
+                    response = await client.PostAsync(POSTURI, request);
+                }
+
+                //await Task.Delay(5000);
+
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
+
     }
 }
