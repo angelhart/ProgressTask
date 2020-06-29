@@ -4,21 +4,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using AsyncSubmit.Models;
 using System.Net.Http;
-using AsyncSubmit.Providers;
+using AsyncSubmit.Providers.Contracts;
 
 namespace AsyncSubmit.Controllers
 {
     public class HomeController : Controller
     {
-        private const string POSTURI = "https://us-central1-randomfails.cloudfunctions.net/submitEmail";
+        private readonly string POSTURI = "https://us-central1-randomfails.cloudfunctions.net/submitEmail";
+        private readonly int TIMEOUTATTEMPTS = 10;
 
         private readonly ILogger<HomeController> _logger;
+        private readonly IDataParser _dataParser;
         private readonly IHttpClientFactory _httpClientFactory;
 
         public HomeController(ILogger<HomeController> logger,
+                              IDataParser dataParser,
                               IHttpClientFactory httpClientFactory)
         {
             this._logger = logger;
+            this._dataParser = dataParser;
             this._httpClientFactory = httpClientFactory;
         }
 
@@ -35,23 +39,22 @@ namespace AsyncSubmit.Controllers
             {
                 var client = _httpClientFactory.CreateClient();
 
-                var request = JsonProvider<FormViewModel>.Serialize(model);
+                var request = _dataParser.Serialize(model);
                 var response = await client.PostAsync(POSTURI, request);
 
-                while (!response.IsSuccessStatusCode)
+                var i = 0;
+
+                while (!response.IsSuccessStatusCode && ++i < TIMEOUTATTEMPTS)
                 {
                     response = await client.PostAsync(POSTURI, request);
                 }
 
-                //await Task.Delay(5000);
-
-                return Ok();
+                return StatusCode((int)response.StatusCode, response.Content);
             }
             else
             {
-                return BadRequest();
+                return BadRequest("Invalid input");
             }
         }
-
     }
 }
