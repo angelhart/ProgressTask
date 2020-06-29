@@ -31,6 +31,11 @@ namespace AsyncSubmit.Controllers
             return View();
         }
 
+        public IActionResult Missing()
+        {
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Post(FormViewModel model)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AsyncSubmit.Middlewares;
 using AsyncSubmit.Providers;
 using AsyncSubmit.Providers.Contracts;
 using Microsoft.AspNetCore.Builder;
@@ -48,6 +49,8 @@ namespace AsyncSubmit
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseMiddleware<MissingMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
