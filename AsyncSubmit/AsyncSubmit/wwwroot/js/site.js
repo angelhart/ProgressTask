@@ -10,20 +10,16 @@
 
             var submitedEmail = $("input[type=email]").val();
 
-            //$.ajax({
-            //    url: actionUrl,
-            //    data: requestContent,
-            //    success: function (data, textStatus, jqXHR) {
-            //        toastr.success("submited successfully!", submitedEmail),
-            //    },
-            //    error: function (jqXHR, textStatus, errorThrown) {
-            //        toastr.error(textStatus, jqXHR.status);
-            //    }
-            //});
-
-            $.post(actionUrl, requestContent, function (xhr, res) {
-                console.log(res.status);
-                toastr.success("submited successfully!", submitedEmail);
+            $.ajax({
+                method: "post",
+                url: actionUrl,
+                data: requestContent,
+                success: function (data, textStatus, jqXHR) {
+                    toastr.success("Submited successfully!", submitedEmail);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    toastr.error("Something went wrong! Please try again in a short while.", jqXHR.status);
+                }
             });
         }
     });
